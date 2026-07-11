@@ -28,6 +28,12 @@ public class GlobalExceptionHandler {
                 .body(Map.of("message", exception.getMessage()));
     }
 
+    @ExceptionHandler(VehicleNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleVehicleNotFound(VehicleNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", exception.getMessage()));
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException exception) {
         if ("Email already exists".equals(exception.getMessage())) {

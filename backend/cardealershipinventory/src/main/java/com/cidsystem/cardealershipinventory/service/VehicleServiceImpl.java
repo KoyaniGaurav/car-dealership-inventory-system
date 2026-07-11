@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.cidsystem.cardealershipinventory.entity.Vehicle;
+import com.cidsystem.cardealershipinventory.exception.VehicleNotFoundException;
 import com.cidsystem.cardealershipinventory.exception.VehicleValidationException;
 import com.cidsystem.cardealershipinventory.repository.VehicleRepository;
 
@@ -33,8 +34,14 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle updatVehicle(Vehicle vehicle) {
-        throw new UnsupportedOperationException("Update vehicle is not implemented yet");
+    public Vehicle updateVehicle(Long id, Vehicle vehicle) {
+        validateVehicle(vehicle);
+
+        Vehicle existingVehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
+
+        applyUpdates(existingVehicle, vehicle);
+        return vehicleRepository.save(existingVehicle);
     }
 
     @Override
@@ -63,5 +70,13 @@ public class VehicleServiceImpl implements VehicleService {
         if (value == null || value.isBlank()) {
             throw new VehicleValidationException(message);
         }
+    }
+
+    private void applyUpdates(Vehicle existingVehicle, Vehicle updateRequest) {
+        existingVehicle.setMake(updateRequest.getMake());
+        existingVehicle.setModel(updateRequest.getModel());
+        existingVehicle.setCategory(updateRequest.getCategory());
+        existingVehicle.setPrice(updateRequest.getPrice());
+        existingVehicle.setQuantity(updateRequest.getQuantity());
     }
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.cidsystem.cardealershipinventory.entity.Category;
 import com.cidsystem.cardealershipinventory.entity.Vehicle;
+import com.cidsystem.cardealershipinventory.exception.VehicleNotFoundException;
 import com.cidsystem.cardealershipinventory.exception.VehicleValidationException;
 import com.cidsystem.cardealershipinventory.repository.VehicleRepository;
 
@@ -119,6 +121,37 @@ public class VehicleServiceTest {
                 () -> vehicleService.addVehicle(vehicle));
 
         assertEquals("Vehicle quantity cannot be negative", exception.getMessage());
+        verify(vehicleRepository, never()).save(any(Vehicle.class));
+    }
+
+    @Test
+    void shouldUpdateVehicle() {
+        Vehicle existingVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L);
+        Vehicle updateRequest = new Vehicle("Honda", "Civic", Category.SEDAN, BigDecimal.valueOf(22000), 4L);
+        Vehicle updatedVehicle = new Vehicle(1L, "Honda", "Civic", Category.SEDAN, BigDecimal.valueOf(22000), 4L);
+
+        when(vehicleRepository.findById(1L)).thenReturn(Optional.of(existingVehicle));
+        when(vehicleRepository.save(existingVehicle)).thenReturn(updatedVehicle);
+
+        Vehicle result = vehicleService.updateVehicle(1L, updateRequest);
+
+        assertEquals(updatedVehicle, result);
+        verify(vehicleRepository).findById(1L);
+        verify(vehicleRepository).save(existingVehicle);
+    }
+
+    @Test
+    void shouldRejectUpdateWhenVehicleDoesNotExist() {
+        Vehicle updateRequest = validVehicle();
+
+        when(vehicleRepository.findById(99L)).thenReturn(Optional.empty());
+
+        VehicleNotFoundException exception = assertThrows(
+                VehicleNotFoundException.class,
+                () -> vehicleService.updateVehicle(99L, updateRequest));
+
+        assertEquals("Vehicle not found with id: 99", exception.getMessage());
+        verify(vehicleRepository).findById(99L);
         verify(vehicleRepository, never()).save(any(Vehicle.class));
     }
 

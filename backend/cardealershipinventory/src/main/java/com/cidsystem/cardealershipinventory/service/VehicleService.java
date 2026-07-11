@@ -12,7 +12,7 @@ public interface VehicleService {
 
     Vehicle addVehicle(Vehicle v);
 
-    Vehicle updatVehicle(Vehicle v);
+    Vehicle updateVehicle(Long id, Vehicle v);
 
     void deleteVehicle(Long id);
 }

@@ -3,6 +3,7 @@ package com.cidsystem.cardealershipinventory.controller;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -79,5 +80,32 @@ public class VehicleControllerTest {
                 .andExpect(jsonPath("$.category").value("SUV"))
                 .andExpect(jsonPath("$.price").value(30000))
                 .andExpect(jsonPath("$.quantity").value(5));
+    }
+
+    @Test
+    void shouldUpdateVehicle() throws Exception {
+        Vehicle updatedVehicle = new Vehicle(1L, "Honda", "Civic", Category.SEDAN, BigDecimal.valueOf(22000), 4L);
+
+        when(vehicleService.updateVehicle(org.mockito.ArgumentMatchers.eq(1L),
+                org.mockito.ArgumentMatchers.any(Vehicle.class))).thenReturn(updatedVehicle);
+
+        mockMvc.perform(put("/api/vehicles/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "make": "Honda",
+                            "model": "Civic",
+                            "category": "SEDAN",
+                            "price": 22000,
+                            "quantity": 4
+                        }
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.make").value("Honda"))
+                .andExpect(jsonPath("$.model").value("Civic"))
+                .andExpect(jsonPath("$.category").value("SEDAN"))
+                .andExpect(jsonPath("$.price").value(22000))
+                .andExpect(jsonPath("$.quantity").value(4));
     }
 }
