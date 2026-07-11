@@ -2,6 +2,7 @@ package com.cidsystem.cardealershipinventory.controller;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -51,5 +53,31 @@ public class VehicleControllerTest {
                 .andExpect(jsonPath("$[0].category").value("SUV"))
                 .andExpect(jsonPath("$[0].price").value(30000))
                 .andExpect(jsonPath("$[0].quantity").value(5));
+    }
+
+    @Test
+    void shouldCreateVehicle() throws Exception {
+        Vehicle savedVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L);
+
+        when(vehicleService.addVehicle(org.mockito.ArgumentMatchers.any(Vehicle.class))).thenReturn(savedVehicle);
+
+        mockMvc.perform(post("/api/vehicles")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "make": "Toyota",
+                            "model": "RAV4",
+                            "category": "SUV",
+                            "price": 30000,
+                            "quantity": 5
+                        }
+                        """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.make").value("Toyota"))
+                .andExpect(jsonPath("$.model").value("RAV4"))
+                .andExpect(jsonPath("$.category").value("SUV"))
+                .andExpect(jsonPath("$.price").value(30000))
+                .andExpect(jsonPath("$.quantity").value(5));
     }
 }
