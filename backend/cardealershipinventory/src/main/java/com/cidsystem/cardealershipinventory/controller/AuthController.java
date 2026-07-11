@@ -1,10 +1,6 @@
 package com.cidsystem.cardealershipinventory.controller;
 
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,21 +30,5 @@ public class AuthController {
     @PostMapping("/login")
     public AuthenticationResponse login(@RequestBody LoginRequest request) {
         return authService.login(request);
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException exception) {
-        if ("Email already exists".equals(exception.getMessage())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", exception.getMessage()));
-        }
-
-        if ("Invalid credentials".equals(exception.getMessage())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", exception.getMessage()));
-        }
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message", exception.getMessage()));
     }
 }

@@ -7,31 +7,41 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.cidsystem.cardealershipinventory.dto.AuthenticationResponse;
 import com.cidsystem.cardealershipinventory.dto.LoginRequest;
 import com.cidsystem.cardealershipinventory.dto.RegisterRequest;
+import com.cidsystem.cardealershipinventory.exception.GlobalExceptionHandler;
 import com.cidsystem.cardealershipinventory.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebMvcTest(AuthController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 public class AuthControllerTest {
 
-    @Autowired
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+    @Mock
     private AuthService authService;
+
+    @InjectMocks
+    private AuthController authController;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(authController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
     @Test
     void shouldReturn201WhenRegistrationIsSuccessful() throws Exception {
@@ -75,7 +85,8 @@ public class AuthControllerTest {
         request.setPassword("password123");
 
         AuthenticationResponse response = new AuthenticationResponse();
-        response.setMessage("Login successful");
+        response.setToken("jwt-token");
+        response.setType("Bearer");
 
         when(authService.login(any(LoginRequest.class))).thenReturn(response);
 
@@ -83,7 +94,8 @@ public class AuthControllerTest {
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Login successful"));
+                .andExpect(jsonPath("$.token").value("jwt-token"))
+                .andExpect(jsonPath("$.type").value("Bearer"));
     }
 
     @Test

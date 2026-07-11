@@ -10,17 +10,23 @@ import com.cidsystem.cardealershipinventory.dto.LoginRequest;
 import com.cidsystem.cardealershipinventory.dto.RegisterRequest;
 import com.cidsystem.cardealershipinventory.entity.Role;
 import com.cidsystem.cardealershipinventory.entity.User;
+import com.cidsystem.cardealershipinventory.exception.EmailAlreadyExistsException;
+import com.cidsystem.cardealershipinventory.exception.InvalidCredentialsException;
 import com.cidsystem.cardealershipinventory.repository.UserRepository;
+import com.cidsystem.cardealershipinventory.security.JwtService;
 
 @Service
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthServiceImpl(UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -28,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
         Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
 
         if (existingUser.isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -50,15 +56,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthenticationResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if (!passwordMatches) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
+        String token = jwtService.generateToken(user.getEmail());
+
         AuthenticationResponse response = new AuthenticationResponse();
-        response.setMessage("Login successful");
+        response.setToken(token);
+        response.setType("Bearer");
         return response;
     }
 }
