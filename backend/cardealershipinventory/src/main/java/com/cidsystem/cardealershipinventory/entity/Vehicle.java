@@ -3,6 +3,8 @@ package com.cidsystem.cardealershipinventory.entity;
 import java.math.BigDecimal;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,6 +21,7 @@ public class Vehicle {
 
     private String model;
 
+    @Enumerated(EnumType.STRING)
     private Category category;
 
     private BigDecimal price;

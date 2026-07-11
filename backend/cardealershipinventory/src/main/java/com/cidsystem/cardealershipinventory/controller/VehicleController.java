@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cidsystem.cardealershipinventory.dto.RestockRequest;
 import com.cidsystem.cardealershipinventory.entity.Category;
 import com.cidsystem.cardealershipinventory.entity.Vehicle;
 import com.cidsystem.cardealershipinventory.service.VehicleService;
@@ -66,7 +67,7 @@ public class VehicleController {
     }
 
     @PostMapping("/{id}/restock")
-    public Vehicle restockVehicle(@PathVariable Long id) {
-        return vehicleService.restockVehicle(id);
+    public Vehicle restockVehicle(@PathVariable Long id , @RequestBody RestockRequest request) {
+        return vehicleService.restockVehicle(id, request.getQuantity());
     }
 }

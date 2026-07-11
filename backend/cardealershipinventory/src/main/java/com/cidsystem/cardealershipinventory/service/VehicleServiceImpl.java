@@ -78,9 +78,17 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle restockVehicle(Long id) {
+    public Vehicle restockVehicle(Long id, Long quantity) {
+
         Vehicle vehicle = findVehicleById(id);
-        vehicle.setQuantity(vehicle.getQuantity() + 1);
+
+        if (quantity == null || quantity <= 0) {
+            throw new VehicleValidationException(
+                    "Restock quantity must be greater than zero");
+        }
+
+        vehicle.setQuantity(vehicle.getQuantity() + quantity);
+
         return vehicleRepository.save(vehicle);
     }
 

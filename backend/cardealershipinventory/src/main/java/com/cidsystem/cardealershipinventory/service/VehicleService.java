@@ -20,5 +20,5 @@ public interface VehicleService {
 
     Vehicle purchaseVehicle(Long id);
 
-    Vehicle restockVehicle(Long id);
+    Vehicle restockVehicle(Long id, Long quantity);
 }

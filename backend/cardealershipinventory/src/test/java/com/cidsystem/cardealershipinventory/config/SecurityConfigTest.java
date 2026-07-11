@@ -4,7 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -14,8 +16,13 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cidsystem.cardealershipinventory.controller.AuthController;
@@ -88,11 +95,100 @@ public class SecurityConfigTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    @WithMockUser(roles = "USER")
+    void shouldAllowUserVehicleReadAndPurchaseEndpoints() throws Exception {
+        mockMvc.perform(get("/api/vehicles"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/vehicles/search"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/vehicles/1/purchase"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void shouldRejectUserFromAdminVehicleEndpoints() throws Exception {
+        mockMvc.perform(post("/api/vehicles"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(put("/api/vehicles/1"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(delete("/api/vehicles/1"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/vehicles/1/restock"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void shouldAllowAdminAllVehicleEndpoints() throws Exception {
+        mockMvc.perform(get("/api/vehicles"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/vehicles/search"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/vehicles/1/purchase"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/vehicles"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(put("/api/vehicles/1"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/api/vehicles/1"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/vehicles/1/restock"))
+                .andExpect(status().isOk());
+    }
+
     @RestController
     static class SecuredTestController {
         @GetMapping("/api/secure")
         ResponseEntity<String> securedEndpoint() {
             return ResponseEntity.ok("secured");
+        }
+
+        @GetMapping("/api/vehicles")
+        ResponseEntity<String> getVehicles() {
+            return ResponseEntity.ok("vehicles");
+        }
+
+        @GetMapping("/api/vehicles/search")
+        ResponseEntity<String> searchVehicles() {
+            return ResponseEntity.ok("vehicles");
+        }
+
+        @PostMapping("/api/vehicles/{id}/purchase")
+        ResponseEntity<String> purchaseVehicle(@PathVariable Long id) {
+            return ResponseEntity.ok("vehicle");
+        }
+
+        @PostMapping("/api/vehicles")
+        ResponseEntity<String> addVehicle() {
+            return ResponseEntity.ok("vehicle");
+        }
+
+        @PutMapping("/api/vehicles/{id}")
+        ResponseEntity<String> updateVehicle(@PathVariable Long id) {
+            return ResponseEntity.ok("vehicle");
+        }
+
+        @DeleteMapping("/api/vehicles/{id}")
+        ResponseEntity<String> deleteVehicle(@PathVariable Long id) {
+            return ResponseEntity.ok("vehicle");
+        }
+
+        @PostMapping("/api/vehicles/{id}/restock")
+        ResponseEntity<String> restockVehicle(@PathVariable Long id) {
+            return ResponseEntity.ok("vehicle");
         }
     }
 }

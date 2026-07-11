@@ -28,150 +28,163 @@ import com.cidsystem.cardealershipinventory.service.VehicleService;
 @ExtendWith(MockitoExtension.class)
 public class VehicleControllerTest {
 
-    private MockMvc mockMvc;
+        private MockMvc mockMvc;
 
-    @Mock
-    private VehicleService vehicleService;
+        @Mock
+        private VehicleService vehicleService;
 
-    @InjectMocks
-    private VehicleController vehicleController;
+        @InjectMocks
+        private VehicleController vehicleController;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(vehicleController).build();
-    }
+        @BeforeEach
+        void setUp() {
+                mockMvc = MockMvcBuilders.standaloneSetup(vehicleController).build();
+        }
 
-    @Test
-    void shouldReturnAllVehicles() throws Exception {
-        List<Vehicle> vehicles = List.of(
-                new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L));
+        @Test
+        void shouldReturnAllVehicles() throws Exception {
+                List<Vehicle> vehicles = List.of(
+                                new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L));
 
-        when(vehicleService.getAllVehicle()).thenReturn(vehicles);
+                when(vehicleService.getAllVehicle()).thenReturn(vehicles);
 
-        mockMvc.perform(get("/api/vehicles"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].make").value("Toyota"))
-                .andExpect(jsonPath("$[0].model").value("RAV4"))
-                .andExpect(jsonPath("$[0].category").value("SUV"))
-                .andExpect(jsonPath("$[0].price").value(30000))
-                .andExpect(jsonPath("$[0].quantity").value(5));
-    }
+                mockMvc.perform(get("/api/vehicles"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$[0].make").value("Toyota"))
+                                .andExpect(jsonPath("$[0].model").value("RAV4"))
+                                .andExpect(jsonPath("$[0].category").value("SUV"))
+                                .andExpect(jsonPath("$[0].price").value(30000))
+                                .andExpect(jsonPath("$[0].quantity").value(5));
+        }
 
-    @Test
-    void shouldCreateVehicle() throws Exception {
-        Vehicle savedVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L);
+        @Test
+        void shouldCreateVehicle() throws Exception {
+                Vehicle savedVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L);
 
-        when(vehicleService.addVehicle(org.mockito.ArgumentMatchers.any(Vehicle.class))).thenReturn(savedVehicle);
+                when(vehicleService.addVehicle(org.mockito.ArgumentMatchers.any(Vehicle.class)))
+                                .thenReturn(savedVehicle);
 
-        mockMvc.perform(post("/api/vehicles")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                            "make": "Toyota",
-                            "model": "RAV4",
-                            "category": "SUV",
-                            "price": 30000,
-                            "quantity": 5
-                        }
-                        """))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.make").value("Toyota"))
-                .andExpect(jsonPath("$.model").value("RAV4"))
-                .andExpect(jsonPath("$.category").value("SUV"))
-                .andExpect(jsonPath("$.price").value(30000))
-                .andExpect(jsonPath("$.quantity").value(5));
-    }
+                mockMvc.perform(post("/api/vehicles")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                                {
+                                                    "make": "Toyota",
+                                                    "model": "RAV4",
+                                                    "category": "SUV",
+                                                    "price": 30000,
+                                                    "quantity": 5
+                                                }
+                                                """))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.id").value(1))
+                                .andExpect(jsonPath("$.make").value("Toyota"))
+                                .andExpect(jsonPath("$.model").value("RAV4"))
+                                .andExpect(jsonPath("$.category").value("SUV"))
+                                .andExpect(jsonPath("$.price").value(30000))
+                                .andExpect(jsonPath("$.quantity").value(5));
+        }
 
-    @Test
-    void shouldUpdateVehicle() throws Exception {
-        Vehicle updatedVehicle = new Vehicle(1L, "Honda", "Civic", Category.SEDAN, BigDecimal.valueOf(22000), 4L);
+        @Test
+        void shouldUpdateVehicle() throws Exception {
+                Vehicle updatedVehicle = new Vehicle(1L, "Honda", "Civic", Category.SEDAN, BigDecimal.valueOf(22000),
+                                4L);
 
-        when(vehicleService.updateVehicle(org.mockito.ArgumentMatchers.eq(1L),
-                org.mockito.ArgumentMatchers.any(Vehicle.class))).thenReturn(updatedVehicle);
+                when(vehicleService.updateVehicle(org.mockito.ArgumentMatchers.eq(1L),
+                                org.mockito.ArgumentMatchers.any(Vehicle.class))).thenReturn(updatedVehicle);
 
-        mockMvc.perform(put("/api/vehicles/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                            "make": "Honda",
-                            "model": "Civic",
-                            "category": "SEDAN",
-                            "price": 22000,
-                            "quantity": 4
-                        }
-                        """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.make").value("Honda"))
-                .andExpect(jsonPath("$.model").value("Civic"))
-                .andExpect(jsonPath("$.category").value("SEDAN"))
-                .andExpect(jsonPath("$.price").value(22000))
-                .andExpect(jsonPath("$.quantity").value(4));
-    }
+                mockMvc.perform(put("/api/vehicles/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                                {
+                                                    "make": "Honda",
+                                                    "model": "Civic",
+                                                    "category": "SEDAN",
+                                                    "price": 22000,
+                                                    "quantity": 4
+                                                }
+                                                """))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(1))
+                                .andExpect(jsonPath("$.make").value("Honda"))
+                                .andExpect(jsonPath("$.model").value("Civic"))
+                                .andExpect(jsonPath("$.category").value("SEDAN"))
+                                .andExpect(jsonPath("$.price").value(22000))
+                                .andExpect(jsonPath("$.quantity").value(4));
+        }
 
-    @Test
-    void shouldSearchVehicles() throws Exception {
-        List<Vehicle> vehicles = List.of(
-                new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L));
+        @Test
+        void shouldSearchVehicles() throws Exception {
+                List<Vehicle> vehicles = List.of(
+                                new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L));
 
-        when(vehicleService.searchVehicle(
-                "Toyota",
-                "RAV4",
-                Category.SUV,
-                BigDecimal.valueOf(25000),
-                BigDecimal.valueOf(35000))).thenReturn(vehicles);
+                when(vehicleService.searchVehicle(
+                                "Toyota",
+                                "RAV4",
+                                Category.SUV,
+                                BigDecimal.valueOf(25000),
+                                BigDecimal.valueOf(35000))).thenReturn(vehicles);
 
-        mockMvc.perform(get("/api/vehicles/search")
-                .param("make", "Toyota")
-                .param("model", "RAV4")
-                .param("category", "SUV")
-                .param("minPrice", "25000")
-                .param("maxPrice", "35000"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].make").value("Toyota"))
-                .andExpect(jsonPath("$[0].model").value("RAV4"))
-                .andExpect(jsonPath("$[0].category").value("SUV"))
-                .andExpect(jsonPath("$[0].price").value(30000))
-                .andExpect(jsonPath("$[0].quantity").value(5));
-    }
+                mockMvc.perform(get("/api/vehicles/search")
+                                .param("make", "Toyota")
+                                .param("model", "RAV4")
+                                .param("category", "SUV")
+                                .param("minPrice", "25000")
+                                .param("maxPrice", "35000"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$[0].id").value(1))
+                                .andExpect(jsonPath("$[0].make").value("Toyota"))
+                                .andExpect(jsonPath("$[0].model").value("RAV4"))
+                                .andExpect(jsonPath("$[0].category").value("SUV"))
+                                .andExpect(jsonPath("$[0].price").value(30000))
+                                .andExpect(jsonPath("$[0].quantity").value(5));
+        }
 
-    @Test
-    void shouldDeleteVehicle() throws Exception {
-        mockMvc.perform(delete("/api/vehicles/1"))
-                .andExpect(status().isNoContent());
-    }
+        @Test
+        void shouldDeleteVehicle() throws Exception {
+                mockMvc.perform(delete("/api/vehicles/1"))
+                                .andExpect(status().isNoContent());
+        }
 
-    @Test
-    void shouldPurchaseVehicle() throws Exception {
-        Vehicle purchasedVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 1L);
+        @Test
+        void shouldPurchaseVehicle() throws Exception {
+                Vehicle purchasedVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000),
+                                1L);
 
-        when(vehicleService.purchaseVehicle(1L)).thenReturn(purchasedVehicle);
+                when(vehicleService.purchaseVehicle(1L)).thenReturn(purchasedVehicle);
 
-        mockMvc.perform(post("/api/vehicles/1/purchase"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.make").value("Toyota"))
-                .andExpect(jsonPath("$.model").value("RAV4"))
-                .andExpect(jsonPath("$.category").value("SUV"))
-                .andExpect(jsonPath("$.price").value(30000))
-                .andExpect(jsonPath("$.quantity").value(1));
-    }
+                mockMvc.perform(post("/api/vehicles/1/purchase"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(1))
+                                .andExpect(jsonPath("$.make").value("Toyota"))
+                                .andExpect(jsonPath("$.model").value("RAV4"))
+                                .andExpect(jsonPath("$.category").value("SUV"))
+                                .andExpect(jsonPath("$.price").value(30000))
+                                .andExpect(jsonPath("$.quantity").value(1));
+        }
 
-    @Test
-    void shouldRestockVehicle() throws Exception {
-        Vehicle restockedVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 3L);
+        @Test
+        void shouldRestockVehicle() throws Exception {
+                Vehicle restockedVehicle = new Vehicle(1L, "Toyota", "RAV4",
+                                Category.SUV,
+                                BigDecimal.valueOf(30000),
+                                5L);
 
-        when(vehicleService.restockVehicle(1L)).thenReturn(restockedVehicle);
+                when(vehicleService.restockVehicle(1L, 2L))
+                                .thenReturn(restockedVehicle);
 
-        mockMvc.perform(post("/api/vehicles/1/restock"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.make").value("Toyota"))
-                .andExpect(jsonPath("$.model").value("RAV4"))
-                .andExpect(jsonPath("$.category").value("SUV"))
-                .andExpect(jsonPath("$.price").value(30000))
-                .andExpect(jsonPath("$.quantity").value(3));
-    }
+                mockMvc.perform(post("/api/vehicles/1/restock")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                                {
+                                                  "quantity": 2
+                                                }
+                                                """))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(1))
+                                .andExpect(jsonPath("$.make").value("Toyota"))
+                                .andExpect(jsonPath("$.model").value("RAV4"))
+                                .andExpect(jsonPath("$.category").value("SUV"))
+                                .andExpect(jsonPath("$.price").value(30000))
+                                .andExpect(jsonPath("$.quantity").value(5));
+        }
 }

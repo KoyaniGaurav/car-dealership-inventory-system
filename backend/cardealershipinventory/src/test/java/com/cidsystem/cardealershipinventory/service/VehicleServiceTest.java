@@ -246,7 +246,7 @@ public class VehicleServiceTest {
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
         when(vehicleRepository.save(vehicle)).thenReturn(restockedVehicle);
 
-        Vehicle result = vehicleService.restockVehicle(1L);
+        Vehicle result = vehicleService.restockVehicle(1L,1L);
 
         assertEquals(restockedVehicle, result);
         assertEquals(3L, vehicle.getQuantity());
