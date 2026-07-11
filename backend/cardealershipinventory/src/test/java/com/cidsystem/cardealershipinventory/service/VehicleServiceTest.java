@@ -183,6 +183,29 @@ public class VehicleServiceTest {
                 BigDecimal.valueOf(35000));
     }
 
+    @Test
+    void shouldDeleteVehicle() {
+        when(vehicleRepository.existsById(1L)).thenReturn(true);
+
+        vehicleService.deleteVehicle(1L);
+
+        verify(vehicleRepository).existsById(1L);
+        verify(vehicleRepository).deleteById(1L);
+    }
+
+    @Test
+    void shouldRejectDeleteWhenVehicleDoesNotExist() {
+        when(vehicleRepository.existsById(99L)).thenReturn(false);
+
+        VehicleNotFoundException exception = assertThrows(
+                VehicleNotFoundException.class,
+                () -> vehicleService.deleteVehicle(99L));
+
+        assertEquals("Vehicle not found with id: 99", exception.getMessage());
+        verify(vehicleRepository).existsById(99L);
+        verify(vehicleRepository, never()).deleteById(99L);
+    }
+
     private Vehicle validVehicle() {
         return new Vehicle("Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L);
     }

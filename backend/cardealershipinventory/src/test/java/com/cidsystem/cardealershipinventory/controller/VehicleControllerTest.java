@@ -1,6 +1,7 @@
 package com.cidsystem.cardealershipinventory.controller;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -134,5 +135,11 @@ public class VehicleControllerTest {
                 .andExpect(jsonPath("$[0].category").value("SUV"))
                 .andExpect(jsonPath("$[0].price").value(30000))
                 .andExpect(jsonPath("$[0].quantity").value(5));
+    }
+
+    @Test
+    void shouldDeleteVehicle() throws Exception {
+        mockMvc.perform(delete("/api/vehicles/1"))
+                .andExpect(status().isNoContent());
     }
 }

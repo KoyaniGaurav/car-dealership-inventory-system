@@ -58,7 +58,11 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public void deleteVehicle(Long id) {
-        throw new UnsupportedOperationException("Delete vehicle is not implemented yet");
+        if (!vehicleRepository.existsById(id)) {
+            throw new VehicleNotFoundException(id);
+        }
+
+        vehicleRepository.deleteById(id);
     }
 
     private void validateVehicle(Vehicle vehicle) {
