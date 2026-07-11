@@ -238,6 +238,22 @@ public class VehicleServiceTest {
         verify(vehicleRepository, never()).save(any(Vehicle.class));
     }
 
+    @Test
+    void shouldRestockVehicle() {
+        Vehicle vehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 2L);
+        Vehicle restockedVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 3L);
+
+        when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
+        when(vehicleRepository.save(vehicle)).thenReturn(restockedVehicle);
+
+        Vehicle result = vehicleService.restockVehicle(1L);
+
+        assertEquals(restockedVehicle, result);
+        assertEquals(3L, vehicle.getQuantity());
+        verify(vehicleRepository).findById(1L);
+        verify(vehicleRepository).save(vehicle);
+    }
+
     private Vehicle validVehicle() {
         return new Vehicle("Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L);
     }

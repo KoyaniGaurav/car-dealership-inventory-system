@@ -158,4 +158,20 @@ public class VehicleControllerTest {
                 .andExpect(jsonPath("$.price").value(30000))
                 .andExpect(jsonPath("$.quantity").value(1));
     }
+
+    @Test
+    void shouldRestockVehicle() throws Exception {
+        Vehicle restockedVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 3L);
+
+        when(vehicleService.restockVehicle(1L)).thenReturn(restockedVehicle);
+
+        mockMvc.perform(post("/api/vehicles/1/restock"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.make").value("Toyota"))
+                .andExpect(jsonPath("$.model").value("RAV4"))
+                .andExpect(jsonPath("$.category").value("SUV"))
+                .andExpect(jsonPath("$.price").value(30000))
+                .andExpect(jsonPath("$.quantity").value(3));
+    }
 }

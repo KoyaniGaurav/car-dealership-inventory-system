@@ -64,4 +64,9 @@ public class VehicleController {
     public Vehicle purchaseVehicle(@PathVariable Long id) {
         return vehicleService.purchaseVehicle(id);
     }
+
+    @PostMapping("/{id}/restock")
+    public Vehicle restockVehicle(@PathVariable Long id) {
+        return vehicleService.restockVehicle(id);
+    }
 }

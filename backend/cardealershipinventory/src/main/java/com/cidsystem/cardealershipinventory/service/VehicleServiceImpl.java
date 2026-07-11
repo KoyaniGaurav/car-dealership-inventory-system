@@ -77,6 +77,13 @@ public class VehicleServiceImpl implements VehicleService {
         return vehicleRepository.save(vehicle);
     }
 
+    @Override
+    public Vehicle restockVehicle(Long id) {
+        Vehicle vehicle = findVehicleById(id);
+        vehicle.setQuantity(vehicle.getQuantity() + 1);
+        return vehicleRepository.save(vehicle);
+    }
+
     private void validateVehicle(Vehicle vehicle) {
         validateRequiredText(vehicle.getMake(), "Vehicle make is required");
         validateRequiredText(vehicle.getModel(), "Vehicle model is required");
