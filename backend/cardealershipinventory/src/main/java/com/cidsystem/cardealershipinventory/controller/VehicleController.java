@@ -59,4 +59,9 @@ public class VehicleController {
     public void deleteVehicle(@PathVariable Long id) {
         vehicleService.deleteVehicle(id);
     }
+
+    @PostMapping("/{id}/purchase")
+    public Vehicle purchaseVehicle(@PathVariable Long id) {
+        return vehicleService.purchaseVehicle(id);
+    }
 }

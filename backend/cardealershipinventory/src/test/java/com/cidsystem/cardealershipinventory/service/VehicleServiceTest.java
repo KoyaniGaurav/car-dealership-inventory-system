@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.cidsystem.cardealershipinventory.entity.Category;
 import com.cidsystem.cardealershipinventory.entity.Vehicle;
 import com.cidsystem.cardealershipinventory.exception.VehicleNotFoundException;
+import com.cidsystem.cardealershipinventory.exception.VehicleStockException;
 import com.cidsystem.cardealershipinventory.exception.VehicleValidationException;
 import com.cidsystem.cardealershipinventory.repository.VehicleRepository;
 
@@ -204,6 +205,37 @@ public class VehicleServiceTest {
         assertEquals("Vehicle not found with id: 99", exception.getMessage());
         verify(vehicleRepository).existsById(99L);
         verify(vehicleRepository, never()).deleteById(99L);
+    }
+
+    @Test
+    void shouldPurchaseVehicle() {
+        Vehicle vehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 2L);
+        Vehicle purchasedVehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 1L);
+
+        when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
+        when(vehicleRepository.save(vehicle)).thenReturn(purchasedVehicle);
+
+        Vehicle result = vehicleService.purchaseVehicle(1L);
+
+        assertEquals(purchasedVehicle, result);
+        assertEquals(1L, vehicle.getQuantity());
+        verify(vehicleRepository).findById(1L);
+        verify(vehicleRepository).save(vehicle);
+    }
+
+    @Test
+    void shouldRejectPurchaseWhenVehicleIsOutOfStock() {
+        Vehicle vehicle = new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 0L);
+
+        when(vehicleRepository.findById(1L)).thenReturn(Optional.of(vehicle));
+
+        VehicleStockException exception = assertThrows(
+                VehicleStockException.class,
+                () -> vehicleService.purchaseVehicle(1L));
+
+        assertEquals("Vehicle is out of stock", exception.getMessage());
+        verify(vehicleRepository).findById(1L);
+        verify(vehicleRepository, never()).save(any(Vehicle.class));
     }
 
     private Vehicle validVehicle() {

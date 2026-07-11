@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.cidsystem.cardealershipinventory.entity.Category;
 import com.cidsystem.cardealershipinventory.entity.Vehicle;
 import com.cidsystem.cardealershipinventory.exception.VehicleNotFoundException;
+import com.cidsystem.cardealershipinventory.exception.VehicleStockException;
 import com.cidsystem.cardealershipinventory.exception.VehicleValidationException;
 import com.cidsystem.cardealershipinventory.repository.VehicleRepository;
 
@@ -49,8 +50,7 @@ public class VehicleServiceImpl implements VehicleService {
     public Vehicle updateVehicle(Long id, Vehicle vehicle) {
         validateVehicle(vehicle);
 
-        Vehicle existingVehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException(id));
+        Vehicle existingVehicle = findVehicleById(id);
 
         applyUpdates(existingVehicle, vehicle);
         return vehicleRepository.save(existingVehicle);
@@ -63,6 +63,18 @@ public class VehicleServiceImpl implements VehicleService {
         }
 
         vehicleRepository.deleteById(id);
+    }
+
+    @Override
+    public Vehicle purchaseVehicle(Long id) {
+        Vehicle vehicle = findVehicleById(id);
+
+        if (vehicle.getQuantity() <= 0) {
+            throw new VehicleStockException("Vehicle is out of stock");
+        }
+
+        vehicle.setQuantity(vehicle.getQuantity() - 1);
+        return vehicleRepository.save(vehicle);
     }
 
     private void validateVehicle(Vehicle vehicle) {
@@ -94,6 +106,11 @@ public class VehicleServiceImpl implements VehicleService {
         existingVehicle.setCategory(updateRequest.getCategory());
         existingVehicle.setPrice(updateRequest.getPrice());
         existingVehicle.setQuantity(updateRequest.getQuantity());
+    }
+
+    private Vehicle findVehicleById(Long id) {
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException(id));
     }
 
     private String normalizeText(String value) {

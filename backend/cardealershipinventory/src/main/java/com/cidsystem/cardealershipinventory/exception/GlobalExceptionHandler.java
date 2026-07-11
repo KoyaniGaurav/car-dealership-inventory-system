@@ -34,6 +34,12 @@ public class GlobalExceptionHandler {
                 .body(Map.of("message", exception.getMessage()));
     }
 
+    @ExceptionHandler(VehicleStockException.class)
+    public ResponseEntity<Map<String, String>> handleVehicleStock(VehicleStockException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", exception.getMessage()));
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException exception) {
         if ("Email already exists".equals(exception.getMessage())) {

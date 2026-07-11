@@ -17,4 +17,6 @@ public interface VehicleService {
     Vehicle updateVehicle(Long id, Vehicle v);
 
     void deleteVehicle(Long id);
+
+    Vehicle purchaseVehicle(Long id);
 }
