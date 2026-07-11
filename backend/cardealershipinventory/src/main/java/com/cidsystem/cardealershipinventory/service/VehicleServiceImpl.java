@@ -1,9 +1,11 @@
 package com.cidsystem.cardealershipinventory.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.cidsystem.cardealershipinventory.entity.Category;
 import com.cidsystem.cardealershipinventory.entity.Vehicle;
 import com.cidsystem.cardealershipinventory.exception.VehicleNotFoundException;
 import com.cidsystem.cardealershipinventory.exception.VehicleValidationException;
@@ -23,8 +25,18 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle searchBVehicle(String keyword) {
-        throw new UnsupportedOperationException("Search vehicle is not implemented yet");
+    public List<Vehicle> searchVehicle(
+            String make,
+            String model,
+            Category category,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+        return vehicleRepository.searchVehicles(
+                normalizeText(make),
+                normalizeText(model),
+                category,
+                minPrice,
+                maxPrice);
     }
 
     @Override
@@ -78,5 +90,13 @@ public class VehicleServiceImpl implements VehicleService {
         existingVehicle.setCategory(updateRequest.getCategory());
         existingVehicle.setPrice(updateRequest.getPrice());
         existingVehicle.setQuantity(updateRequest.getQuantity());
+    }
+
+    private String normalizeText(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
     }
 }

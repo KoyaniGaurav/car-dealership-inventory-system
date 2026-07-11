@@ -155,6 +155,34 @@ public class VehicleServiceTest {
         verify(vehicleRepository, never()).save(any(Vehicle.class));
     }
 
+    @Test
+    void shouldSearchVehiclesByFilters() {
+        List<Vehicle> vehicles = List.of(
+                new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L));
+
+        when(vehicleRepository.searchVehicles(
+                "Toyota",
+                "RAV4",
+                Category.SUV,
+                BigDecimal.valueOf(25000),
+                BigDecimal.valueOf(35000))).thenReturn(vehicles);
+
+        List<Vehicle> result = vehicleService.searchVehicle(
+                "Toyota",
+                "RAV4",
+                Category.SUV,
+                BigDecimal.valueOf(25000),
+                BigDecimal.valueOf(35000));
+
+        assertEquals(vehicles, result);
+        verify(vehicleRepository).searchVehicles(
+                "Toyota",
+                "RAV4",
+                Category.SUV,
+                BigDecimal.valueOf(25000),
+                BigDecimal.valueOf(35000));
+    }
+
     private Vehicle validVehicle() {
         return new Vehicle("Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L);
     }

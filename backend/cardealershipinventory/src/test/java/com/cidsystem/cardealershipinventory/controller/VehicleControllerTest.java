@@ -108,4 +108,31 @@ public class VehicleControllerTest {
                 .andExpect(jsonPath("$.price").value(22000))
                 .andExpect(jsonPath("$.quantity").value(4));
     }
+
+    @Test
+    void shouldSearchVehicles() throws Exception {
+        List<Vehicle> vehicles = List.of(
+                new Vehicle(1L, "Toyota", "RAV4", Category.SUV, BigDecimal.valueOf(30000), 5L));
+
+        when(vehicleService.searchVehicle(
+                "Toyota",
+                "RAV4",
+                Category.SUV,
+                BigDecimal.valueOf(25000),
+                BigDecimal.valueOf(35000))).thenReturn(vehicles);
+
+        mockMvc.perform(get("/api/vehicles/search")
+                .param("make", "Toyota")
+                .param("model", "RAV4")
+                .param("category", "SUV")
+                .param("minPrice", "25000")
+                .param("maxPrice", "35000"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].make").value("Toyota"))
+                .andExpect(jsonPath("$[0].model").value("RAV4"))
+                .andExpect(jsonPath("$[0].category").value("SUV"))
+                .andExpect(jsonPath("$[0].price").value(30000))
+                .andExpect(jsonPath("$[0].quantity").value(5));
+    }
 }
