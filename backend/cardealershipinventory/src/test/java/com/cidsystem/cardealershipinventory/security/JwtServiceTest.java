@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 public class JwtServiceTest {
 
     private final JwtService jwtService = new JwtService(
-            "my-test-secret-key-my-test-secret-key",
-            3600000L);
+            "YDgykLuK7Nqqh83DlEi5S8seEvXkc6LjYzmX0Gk3PXrQPxrvcU",
+            360000L);
 
     @Test
     void shouldExtractUsernameFromGeneratedToken() {
