@@ -3,7 +3,7 @@ import { formatCategory, formatPrice, formatStockStatus } from '../../utils/form
 import { getStockClass } from '../../utils/vehicleHelpers'
 import Button from '../common/Button'
 
-function VehicleCard({ vehicle, onPurchase, isPurchasing }) {
+function VehicleCard({ vehicle, onPurchase, isPurchasing, isAdmin = false, onRestock }) {
   const isOutOfStock = vehicle.quantity <= 0
 
   return (
@@ -29,13 +29,20 @@ function VehicleCard({ vehicle, onPurchase, isPurchasing }) {
         <Link to={`/vehicles/${vehicle.id}`} state={{ vehicle }} className="vehicle-card__link">
           View Details
         </Link>
-        <Button
-          size="small"
-          onClick={() => onPurchase(vehicle.id)}
-          disabled={isOutOfStock || isPurchasing}
-        >
-          {isPurchasing ? 'Processing...' : isOutOfStock ? 'Out of Stock' : 'Purchase'}
-        </Button>
+        <div className="vehicle-card__buttons">
+          {isAdmin && (
+            <Button size="small" variant="outline" onClick={() => onRestock(vehicle)}>
+              Restock
+            </Button>
+          )}
+          <Button
+            size="small"
+            onClick={() => onPurchase(vehicle.id)}
+            disabled={isOutOfStock || isPurchasing}
+          >
+            {isPurchasing ? 'Processing...' : isOutOfStock ? 'Out of Stock' : 'Purchase'}
+          </Button>
+        </div>
       </div>
     </article>
   )

@@ -46,7 +46,7 @@ function FilterPanel({ filters, onChange, onApply, onReset }) {
           </select>
         </div>
         <Input
-          label="Min Price"
+          label="Min Price (₹)"
           name="minPrice"
           type="number"
           value={filters.minPrice}
@@ -54,11 +54,11 @@ function FilterPanel({ filters, onChange, onApply, onReset }) {
           onChange={(event) => onChange('minPrice', event.target.value)}
         />
         <Input
-          label="Max Price"
+          label="Max Price (₹)"
           name="maxPrice"
           type="number"
           value={filters.maxPrice}
-          placeholder="100000"
+          placeholder="1000000"
           onChange={(event) => onChange('maxPrice', event.target.value)}
         />
       </div>

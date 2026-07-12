@@ -66,8 +66,8 @@ export function validateVehicleForm({ make, model, category, price, quantity }) 
   if (!category) errors.category = 'Category is required'
 
   const priceNum = Number(price)
-  if (price === '' || price == null || Number.isNaN(priceNum) || priceNum <= 0) {
-    errors.price = 'Price must be greater than zero'
+  if (price === '' || price == null || Number.isNaN(priceNum) || priceNum <= 100000) {
+    errors.price = 'Price must be greater than 100000'
   }
 
   const quantityNum = Number(quantity)

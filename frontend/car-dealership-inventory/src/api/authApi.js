@@ -10,17 +10,32 @@ export async function register(userData) {
   return response.data
 }
 
-export async function probeAdminRole() {
+export async function probeAdminRole(token) {
   try {
-    await axiosInstance.post('/vehicles', {})
+    await axiosInstance.post(
+      '/vehicles',
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        // Skip global 401 handler during login role detection
+        skipAuthRedirect: true,
+      }
+    )
     return 'ADMIN'
   } catch (error) {
-    if (error.response?.status === 403) {
-      return 'USER'
-    }
-    if (error.response?.status === 400) {
+    const status = error.response?.status
+
+    // 400 = reached admin controller, validation failed on empty body
+    if (status === 400) {
       return 'ADMIN'
     }
-    throw error
+
+    // 403 = authenticated USER, not allowed to create vehicles
+    // 401 = treat as regular user so login is not blocked
+    if (status === 403 || status === 401) {
+      return 'USER'
+    }
+
+    return 'USER'
   }
 }

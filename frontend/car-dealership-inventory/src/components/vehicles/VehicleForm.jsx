@@ -98,7 +98,7 @@ function VehicleForm({ initialData, onSubmit, onCancel, loading, submitLabel = '
           {errors.category && <span className="form-field__error">{errors.category}</span>}
         </div>
         <Input
-          label="Price ($)"
+          label="Price (₹)"
           name="price"
           type="number"
           value={formData.price}

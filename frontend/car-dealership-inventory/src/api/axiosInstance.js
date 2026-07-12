@@ -19,14 +19,16 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const skipAuthRedirect = error.config?.skipAuthRedirect
+    const isAuthPage = ['/login', '/register'].some((path) =>
+      window.location.pathname.includes(path)
+    )
+
+    if (error.response?.status === 401 && !skipAuthRedirect && !isAuthPage) {
       localStorage.removeItem(STORAGE_KEYS.TOKEN)
       localStorage.removeItem(STORAGE_KEYS.EMAIL)
       localStorage.removeItem(STORAGE_KEYS.ROLE)
-
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login'
-      }
+      window.location.href = '/login'
     }
     return Promise.reject(error)
   }

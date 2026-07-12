@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { purchaseVehicle } from '../api/vehicleApi'
+import { purchaseVehicle, restockVehicle } from '../api/vehicleApi'
 import AlertMessages from '../components/common/AlertMessages'
 import Button from '../components/common/Button'
 import EmptyState from '../components/common/EmptyState'
 import PageLoader from '../components/common/PageLoader'
+import RestockModal from '../components/vehicles/RestockModal'
+import { useAuth } from '../hooks/useAuth'
 import { useMessages } from '../hooks/useMessages'
 import { useVehicleById } from '../hooks/useVehicleById'
 import { getErrorMessage } from '../utils/apiError'
@@ -15,13 +17,21 @@ function VehicleDetailsPage() {
   const { id } = useParams()
   const location = useLocation()
   const navigate = useNavigate()
+  const { isAdmin } = useAuth()
   const { vehicle, setVehicle, loading, error } = useVehicleById(
     id,
     location.state?.vehicle
   )
-  const { successMessage, error: actionError, setSuccessMessage, setError: setActionError, clearMessages } =
-    useMessages()
+  const {
+    successMessage,
+    error: actionError,
+    setSuccessMessage,
+    setError: setActionError,
+    clearMessages,
+  } = useMessages()
   const [purchasing, setPurchasing] = useState(false)
+  const [restockOpen, setRestockOpen] = useState(false)
+  const [restocking, setRestocking] = useState(false)
 
   async function handlePurchase() {
     if (!vehicle || vehicle.quantity <= 0) return
@@ -37,6 +47,24 @@ function VehicleDetailsPage() {
       setActionError(getErrorMessage(err, 'Purchase failed. Please try again.'))
     } finally {
       setPurchasing(false)
+    }
+  }
+
+  async function handleConfirmRestock(quantity) {
+    if (!vehicle) return
+
+    setRestocking(true)
+    clearMessages()
+
+    try {
+      const updated = await restockVehicle(vehicle.id, quantity)
+      setVehicle(updated)
+      setSuccessMessage(`Restocked ${updated.make} ${updated.model} with ${quantity} units.`)
+      setRestockOpen(false)
+    } catch (err) {
+      setActionError(getErrorMessage(err, 'Failed to restock vehicle.'))
+    } finally {
+      setRestocking(false)
     }
   }
 
@@ -115,9 +143,27 @@ function VehicleDetailsPage() {
             <Button size="large" onClick={handlePurchase} disabled={isOutOfStock || purchasing}>
               {purchasing ? 'Processing...' : isOutOfStock ? 'Out of Stock' : 'Purchase Vehicle'}
             </Button>
+            {isAdmin && (
+              <Button
+                size="large"
+                variant="outline"
+                onClick={() => setRestockOpen(true)}
+                disabled={restocking}
+              >
+                Restock Vehicle
+              </Button>
+            )}
           </div>
         </div>
       </div>
+
+      <RestockModal
+        vehicle={vehicle}
+        isOpen={restockOpen}
+        onClose={() => !restocking && setRestockOpen(false)}
+        onConfirm={handleConfirmRestock}
+        loading={restocking}
+      />
     </div>
   )
 }

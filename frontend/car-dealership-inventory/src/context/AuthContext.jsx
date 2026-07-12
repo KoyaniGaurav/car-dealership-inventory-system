@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
         email: credentials.email,
       })
 
-      const detectedRole = await probeAdminRole()
+      const detectedRole = await probeAdminRole(data.token)
 
       setToken(data.token)
       setEmail(credentials.email)
