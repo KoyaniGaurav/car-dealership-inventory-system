@@ -22,6 +22,10 @@
     padding: var(--spacing-md);
   }
 
+  .page-header {
+    flex-direction: column;
+  }
+
   .auth-card {
     padding: var(--spacing-xl);
   }
@@ -31,7 +35,36 @@
   }
 
   .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .vehicle-detail {
     grid-template-columns: 1fr;
+  }
+
+  .vehicle-detail__hero {
+    min-height: 200px;
+  }
+
+  .vehicle-detail__icon {
+    font-size: 4rem;
+  }
+
+  .vehicle-detail__specs {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-panel__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-bar {
+    flex-wrap: wrap;
+  }
+
+  .search-bar__input {
+    width: 100%;
+    flex: none;
   }
 }
 
