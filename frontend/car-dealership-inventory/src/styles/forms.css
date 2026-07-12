@@ -41,6 +41,10 @@
   border-color: var(--color-error);
 }
 
+.form-field__select--error {
+  border-color: var(--color-error);
+}
+
 .form-field--error .form-field__input:focus {
   box-shadow: 0 0 0 3px var(--color-error-bg);
 }

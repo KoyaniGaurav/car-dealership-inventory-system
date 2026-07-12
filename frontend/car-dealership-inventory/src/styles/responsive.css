@@ -58,6 +58,14 @@
     grid-template-columns: 1fr;
   }
 
+  .vehicle-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vehicle-table__admin-actions {
+    flex-direction: column;
+  }
+
   .search-bar {
     flex-wrap: wrap;
   }

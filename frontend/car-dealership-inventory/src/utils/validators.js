@@ -57,3 +57,31 @@ export function validateRegisterForm({ name, email, password, confirmPassword })
 
   return errors
 }
+
+export function validateVehicleForm({ make, model, category, price, quantity }) {
+  const errors = {}
+
+  if (!make || !make.trim()) errors.make = 'Make is required'
+  if (!model || !model.trim()) errors.model = 'Model is required'
+  if (!category) errors.category = 'Category is required'
+
+  const priceNum = Number(price)
+  if (price === '' || price == null || Number.isNaN(priceNum) || priceNum <= 0) {
+    errors.price = 'Price must be greater than zero'
+  }
+
+  const quantityNum = Number(quantity)
+  if (quantity === '' || quantity == null || Number.isNaN(quantityNum) || quantityNum < 0) {
+    errors.quantity = 'Quantity cannot be negative'
+  }
+
+  return errors
+}
+
+export function validateRestockQuantity(quantity) {
+  const quantityNum = Number(quantity)
+  if (quantity === '' || quantity == null || Number.isNaN(quantityNum) || quantityNum <= 0) {
+    return 'Restock quantity must be greater than zero'
+  }
+  return ''
+}
