@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import Alert from '../components/common/Alert'
-import Loader from '../components/common/Loader'
+import AlertMessages from '../components/common/AlertMessages'
+import EmptyState from '../components/common/EmptyState'
+import PageHeader from '../components/common/PageHeader'
+import PageLoader from '../components/common/PageLoader'
 import FilterPanel from '../components/vehicles/FilterPanel'
 import SearchBar from '../components/vehicles/SearchBar'
 import VehicleCard from '../components/vehicles/VehicleCard'
@@ -60,10 +62,9 @@ function VehicleListPage() {
   }
 
   async function handleResetFilters() {
-    const cleared = resetFilters()
+    resetFilters()
     setSearchQuery('')
     await fetchVehicles()
-    return cleared
   }
 
   async function handleSearchClick() {
@@ -79,31 +80,27 @@ function VehicleListPage() {
     await handlePurchase(id)
   }
 
+  const vehicleCount = loading
+    ? '...'
+    : `${vehicles.length} vehicle${vehicles.length !== 1 ? 's' : ''}`
+
   return (
     <div className="page">
-      <div className="page-header">
-        <div>
-          <h1 className="page-header__title">Vehicles</h1>
-          <p className="page-header__subtitle">
-            Browse our inventory and purchase your next vehicle
-          </p>
-        </div>
-        <span className="page-header__count">
-          {loading ? '...' : `${vehicles.length} vehicle${vehicles.length !== 1 ? 's' : ''}`}
-        </span>
-      </div>
+      <PageHeader
+        title="Vehicles"
+        subtitle="Browse our inventory and purchase your next vehicle"
+        badge={vehicleCount}
+      />
 
-      {successMessage && (
-        <Alert type="success" message={successMessage} onClose={clearMessages} />
-      )}
-      {error && <Alert type="error" message={error} onClose={clearMessages} />}
+      <AlertMessages
+        successMessage={successMessage}
+        error={error}
+        onClearSuccess={clearMessages}
+        onClearError={clearMessages}
+      />
 
       <div className="vehicles-toolbar">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onSearch={handleSearchClick}
-        />
+        <SearchBar value={searchQuery} onChange={setSearchQuery} onSearch={handleSearchClick} />
       </div>
 
       <FilterPanel
@@ -114,17 +111,13 @@ function VehicleListPage() {
       />
 
       {loading ? (
-        <div className="page-loader">
-          <Loader label="Loading vehicles..." />
-        </div>
+        <PageLoader label="Loading vehicles..." />
       ) : vehicles.length === 0 ? (
-        <div className="empty-state">
-          <span className="empty-state__icon">🚗</span>
-          <h2 className="empty-state__title">No vehicles found</h2>
-          <p className="empty-state__text">
-            Try adjusting your search or filters to find what you&apos;re looking for.
-          </p>
-        </div>
+        <EmptyState
+          icon="🚗"
+          title="No vehicles found"
+          message="Try adjusting your search or filters to find what you're looking for."
+        />
       ) : (
         <div className="vehicle-grid">
           {vehicles.map((vehicle) => (

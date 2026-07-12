@@ -1,57 +1,32 @@
-import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { deleteVehicle, getAllVehicles, restockVehicle } from '../api/vehicleApi'
-import Alert from '../components/common/Alert'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { deleteVehicle, restockVehicle } from '../api/vehicleApi'
+import AlertMessages from '../components/common/AlertMessages'
 import Button from '../components/common/Button'
-import Loader from '../components/common/Loader'
+import PageHeader from '../components/common/PageHeader'
+import PageLoader from '../components/common/PageLoader'
+import StatsGrid from '../components/common/StatsGrid'
 import Modal from '../components/common/Modal'
 import RestockModal from '../components/vehicles/RestockModal'
 import VehicleTable from '../components/vehicles/VehicleTable'
-import { formatPrice } from '../utils/formatters'
+import { useFetchVehicles } from '../hooks/useFetchVehicles'
+import { useFlashMessage } from '../hooks/useFlashMessage'
+import { useMessages } from '../hooks/useMessages'
+import { getErrorMessage } from '../utils/apiError'
 import { computeVehicleStats } from '../utils/vehicleHelpers'
 
 function AdminDashboardPage() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const [vehicles, setVehicles] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(location.state?.message || '')
+  const { vehicles, loading, setVehicles } = useFetchVehicles()
+  const { error, successMessage, setError, setSuccessMessage, clearMessages } = useMessages()
+  const [flashMessage, setFlashMessage] = useFlashMessage()
 
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [restockTarget, setRestockTarget] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const [restocking, setRestocking] = useState(false)
 
-  async function loadVehicles() {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const data = await getAllVehicles()
-      setVehicles(data)
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load vehicles.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadVehicles()
-  }, [])
-
-  useEffect(() => {
-    if (location.state?.message) {
-      setSuccessMessage(location.state.message)
-      navigate(location.pathname, { replace: true, state: {} })
-    }
-  }, [location.state, location.pathname, navigate])
-
-  function clearMessages() {
-    setError(null)
-    setSuccessMessage('')
-  }
+  const displaySuccess = successMessage || flashMessage
 
   function handleEdit(vehicle) {
     navigate(`/admin/edit/${vehicle.id}`, { state: { vehicle } })
@@ -69,7 +44,7 @@ function AdminDashboardPage() {
       setSuccessMessage(`${deleteTarget.make} ${deleteTarget.model} has been deleted.`)
       setDeleteTarget(null)
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete vehicle.')
+      setError(getErrorMessage(err, 'Failed to delete vehicle.'))
     } finally {
       setDeleting(false)
     }
@@ -91,51 +66,39 @@ function AdminDashboardPage() {
       )
       setRestockTarget(null)
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to restock vehicle.')
+      setError(getErrorMessage(err, 'Failed to restock vehicle.'))
     } finally {
       setRestocking(false)
     }
+  }
+
+  function handleClearSuccess() {
+    clearMessages()
+    setFlashMessage('')
   }
 
   const stats = computeVehicleStats(vehicles)
 
   return (
     <div className="page">
-      <div className="page-header">
-        <div>
-          <h1 className="page-header__title">Admin Dashboard</h1>
-          <p className="page-header__subtitle">Manage dealership inventory</p>
-        </div>
-        <Link to="/admin/add">
-          <Button>+ Add Vehicle</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Admin Dashboard"
+        subtitle="Manage dealership inventory"
+        action={
+          <Link to="/admin/add">
+            <Button>+ Add Vehicle</Button>
+          </Link>
+        }
+      />
 
-      {successMessage && (
-        <Alert type="success" message={successMessage} onClose={clearMessages} />
-      )}
-      {error && <Alert type="error" message={error} onClose={clearMessages} />}
+      <AlertMessages
+        successMessage={displaySuccess}
+        error={error}
+        onClearSuccess={handleClearSuccess}
+        onClearError={clearMessages}
+      />
 
-      <div className="dashboard-grid">
-        <div className="stat-card">
-          <span className="stat-card__label">Total Vehicles</span>
-          <span className="stat-card__value">{stats.total}</span>
-        </div>
-        <div className="stat-card stat-card--success">
-          <span className="stat-card__label">In Stock</span>
-          <span className="stat-card__value">{stats.inStock}</span>
-        </div>
-        <div className="stat-card stat-card--warning">
-          <span className="stat-card__label">Out of Stock</span>
-          <span className="stat-card__value">{stats.outOfStock}</span>
-        </div>
-        <div className="stat-card stat-card--accent">
-          <span className="stat-card__label">Inventory Value</span>
-          <span className="stat-card__value stat-card__value--sm">
-            {formatPrice(stats.totalValue)}
-          </span>
-        </div>
-      </div>
+      <StatsGrid stats={stats} />
 
       <div className="admin-section">
         <div className="admin-section__header">
@@ -144,9 +107,7 @@ function AdminDashboardPage() {
         </div>
 
         {loading ? (
-          <div className="page-loader">
-            <Loader label="Loading inventory..." />
-          </div>
+          <PageLoader label="Loading inventory..." />
         ) : (
           <VehicleTable
             vehicles={vehicles}
@@ -164,11 +125,7 @@ function AdminDashboardPage() {
         onClose={() => !deleting && setDeleteTarget(null)}
         footer={
           <>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteTarget(null)}
-              disabled={deleting}
-            >
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
               Cancel
             </Button>
             <Button variant="danger" onClick={handleConfirmDelete} disabled={deleting}>

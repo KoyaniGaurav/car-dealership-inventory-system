@@ -1,48 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { getAllVehicles, updateVehicle } from '../api/vehicleApi'
+import { updateVehicle } from '../api/vehicleApi'
 import Alert from '../components/common/Alert'
-import Loader from '../components/common/Loader'
+import EmptyState from '../components/common/EmptyState'
+import PageHeader from '../components/common/PageHeader'
+import PageLoader from '../components/common/PageLoader'
 import VehicleForm from '../components/vehicles/VehicleForm'
+import { useVehicleById } from '../hooks/useVehicleById'
+import { getErrorMessage } from '../utils/apiError'
 
 function EditVehiclePage() {
   const { id } = useParams()
   const location = useLocation()
   const navigate = useNavigate()
-
-  const [vehicle, setVehicle] = useState(location.state?.vehicle || null)
-  const [loading, setLoading] = useState(!location.state?.vehicle)
+  const { vehicle, loading, error } = useVehicleById(id, location.state?.vehicle)
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    if (vehicle) return
-
-    async function loadVehicle() {
-      setLoading(true)
-      setError(null)
-
-      try {
-        const vehicles = await getAllVehicles()
-        const found = vehicles.find((item) => item.id === Number(id))
-        if (!found) {
-          setError('Vehicle not found.')
-        } else {
-          setVehicle(found)
-        }
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load vehicle.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadVehicle()
-  }, [id, vehicle])
+  const [submitError, setSubmitError] = useState(null)
 
   async function handleSubmit(vehicleData) {
     setSaving(true)
-    setError(null)
+    setSubmitError(null)
 
     try {
       await updateVehicle(vehicle.id, vehicleData)
@@ -50,31 +27,26 @@ function EditVehiclePage() {
         state: { message: `${vehicleData.make} ${vehicleData.model} updated successfully.` },
       })
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update vehicle.')
+      setSubmitError(getErrorMessage(err, 'Failed to update vehicle.'))
     } finally {
       setSaving(false)
     }
   }
 
   if (loading) {
-    return (
-      <div className="page-loader">
-        <Loader label="Loading vehicle..." />
-      </div>
-    )
+    return <PageLoader label="Loading vehicle..." />
   }
 
   if (!vehicle) {
     return (
       <div className="page">
-        <div className="empty-state">
-          <span className="empty-state__icon">🚗</span>
-          <h2 className="empty-state__title">Vehicle Not Found</h2>
-          <p className="empty-state__text">{error || 'This vehicle may have been removed.'}</p>
-          <button type="button" className="link-back" onClick={() => navigate('/admin')}>
-            ← Back to Admin
-          </button>
-        </div>
+        <EmptyState
+          icon="🚗"
+          title="Vehicle Not Found"
+          message={error || 'This vehicle may have been removed.'}
+          actionLabel="Back to Admin"
+          onAction={() => navigate('/admin')}
+        />
       </div>
     )
   }
@@ -85,16 +57,14 @@ function EditVehiclePage() {
         ← Back to Admin
       </button>
 
-      <div className="page-header">
-        <div>
-          <h1 className="page-header__title">Edit Vehicle</h1>
-          <p className="page-header__subtitle">
-            Update {vehicle.make} {vehicle.model}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Edit Vehicle"
+        subtitle={`Update ${vehicle.make} ${vehicle.model}`}
+      />
 
-      {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
+      {submitError && (
+        <Alert type="error" message={submitError} onClose={() => setSubmitError(null)} />
+      )}
 
       <div className="form-card">
         <VehicleForm

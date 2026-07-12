@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { getAllVehicles, purchaseVehicle } from '../api/vehicleApi'
-import Alert from '../components/common/Alert'
+import { useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { purchaseVehicle } from '../api/vehicleApi'
+import AlertMessages from '../components/common/AlertMessages'
 import Button from '../components/common/Button'
-import Loader from '../components/common/Loader'
+import EmptyState from '../components/common/EmptyState'
+import PageLoader from '../components/common/PageLoader'
+import { useMessages } from '../hooks/useMessages'
+import { useVehicleById } from '../hooks/useVehicleById'
+import { getErrorMessage } from '../utils/apiError'
 import { formatCategory, formatPrice, formatStockStatus } from '../utils/formatters'
 import { getStockClass } from '../utils/vehicleHelpers'
 
@@ -11,75 +15,45 @@ function VehicleDetailsPage() {
   const { id } = useParams()
   const location = useLocation()
   const navigate = useNavigate()
-
-  const [vehicle, setVehicle] = useState(location.state?.vehicle || null)
-  const [loading, setLoading] = useState(!location.state?.vehicle)
+  const { vehicle, setVehicle, loading, error } = useVehicleById(
+    id,
+    location.state?.vehicle
+  )
+  const { successMessage, error: actionError, setSuccessMessage, setError: setActionError, clearMessages } =
+    useMessages()
   const [purchasing, setPurchasing] = useState(false)
-  const [error, setError] = useState(null)
-  const [successMessage, setSuccessMessage] = useState('')
-
-  useEffect(() => {
-    if (vehicle) return
-
-    async function loadVehicle() {
-      setLoading(true)
-      setError(null)
-
-      try {
-        const vehicles = await getAllVehicles()
-        const found = vehicles.find((item) => item.id === Number(id))
-        if (!found) {
-          setError('Vehicle not found.')
-        } else {
-          setVehicle(found)
-        }
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load vehicle details.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadVehicle()
-  }, [id, vehicle])
 
   async function handlePurchase() {
     if (!vehicle || vehicle.quantity <= 0) return
 
     setPurchasing(true)
-    setError(null)
-    setSuccessMessage('')
+    clearMessages()
 
     try {
       const updated = await purchaseVehicle(vehicle.id)
       setVehicle(updated)
       setSuccessMessage(`You purchased the ${updated.make} ${updated.model}!`)
     } catch (err) {
-      setError(err.response?.data?.message || 'Purchase failed. Please try again.')
+      setActionError(getErrorMessage(err, 'Purchase failed. Please try again.'))
     } finally {
       setPurchasing(false)
     }
   }
 
   if (loading) {
-    return (
-      <div className="page-loader">
-        <Loader label="Loading vehicle details..." />
-      </div>
-    )
+    return <PageLoader label="Loading vehicle details..." />
   }
 
   if (!vehicle) {
     return (
       <div className="page">
-        <div className="empty-state">
-          <span className="empty-state__icon">🚗</span>
-          <h2 className="empty-state__title">Vehicle Not Found</h2>
-          <p className="empty-state__text">{error || 'This vehicle may have been removed.'}</p>
-          <Link to="/vehicles">
-            <Button>Back to Vehicles</Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon="🚗"
+          title="Vehicle Not Found"
+          message={error || 'This vehicle may have been removed.'}
+          actionLabel="Back to Vehicles"
+          onAction={() => navigate('/vehicles')}
+        />
       </div>
     )
   }
@@ -92,10 +66,12 @@ function VehicleDetailsPage() {
         ← Back to Vehicles
       </button>
 
-      {successMessage && (
-        <Alert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />
-      )}
-      {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
+      <AlertMessages
+        successMessage={successMessage}
+        error={actionError}
+        onClearSuccess={() => setSuccessMessage('')}
+        onClearError={() => setActionError(null)}
+      />
 
       <div className="vehicle-detail">
         <div className="vehicle-detail__hero">
@@ -136,11 +112,7 @@ function VehicleDetailsPage() {
           </div>
 
           <div className="vehicle-detail__actions">
-            <Button
-              size="large"
-              onClick={handlePurchase}
-              disabled={isOutOfStock || purchasing}
-            >
+            <Button size="large" onClick={handlePurchase} disabled={isOutOfStock || purchasing}>
               {purchasing ? 'Processing...' : isOutOfStock ? 'Out of Stock' : 'Purchase Vehicle'}
             </Button>
           </div>

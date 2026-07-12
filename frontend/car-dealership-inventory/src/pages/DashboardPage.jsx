@@ -1,75 +1,30 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getAllVehicles } from '../api/vehicleApi'
-import Loader from '../components/common/Loader'
+import AlertMessages from '../components/common/AlertMessages'
+import PageHeader from '../components/common/PageHeader'
+import PageLoader from '../components/common/PageLoader'
+import StatsGrid from '../components/common/StatsGrid'
 import VehicleTable from '../components/vehicles/VehicleTable'
 import { useAuth } from '../hooks/useAuth'
-import { formatPrice } from '../utils/formatters'
+import { useFetchVehicles } from '../hooks/useFetchVehicles'
 import { computeVehicleStats } from '../utils/vehicleHelpers'
 
 function DashboardPage() {
   const { email, isAdmin } = useAuth()
-  const [vehicles, setVehicles] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    async function loadDashboard() {
-      try {
-        const data = await getAllVehicles()
-        setVehicles(data)
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load dashboard data.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadDashboard()
-  }, [])
-
+  const { vehicles, loading, error } = useFetchVehicles()
   const stats = computeVehicleStats(vehicles)
   const featuredVehicles = vehicles.slice(0, 5)
 
   if (loading) {
-    return (
-      <div className="page-loader">
-        <Loader label="Loading dashboard..." />
-      </div>
-    )
+    return <PageLoader label="Loading dashboard..." />
   }
 
   return (
     <div className="page">
-      <div className="page-header">
-        <div>
-          <h1 className="page-header__title">Dashboard</h1>
-          <p className="page-header__subtitle">Welcome back, {email}</p>
-        </div>
-      </div>
+      <PageHeader title="Dashboard" subtitle={`Welcome back, ${email}`} />
 
-      {error && <p className="dashboard-error">{error}</p>}
+      {error && <AlertMessages error={error} />}
 
-      <div className="dashboard-grid">
-        <div className="stat-card">
-          <span className="stat-card__label">Total Vehicles</span>
-          <span className="stat-card__value">{stats.total}</span>
-        </div>
-        <div className="stat-card stat-card--success">
-          <span className="stat-card__label">In Stock</span>
-          <span className="stat-card__value">{stats.inStock}</span>
-        </div>
-        <div className="stat-card stat-card--warning">
-          <span className="stat-card__label">Out of Stock</span>
-          <span className="stat-card__value">{stats.outOfStock}</span>
-        </div>
-        <div className="stat-card stat-card--accent">
-          <span className="stat-card__label">Inventory Value</span>
-          <span className="stat-card__value stat-card__value--sm">
-            {formatPrice(stats.totalValue)}
-          </span>
-        </div>
-      </div>
+      <StatsGrid stats={stats} />
 
       <div className="dashboard-actions">
         <Link to="/vehicles" className="dashboard-action-card">

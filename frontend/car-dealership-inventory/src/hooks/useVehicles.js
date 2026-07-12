@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { getAllVehicles, purchaseVehicle, searchVehicles } from '../api/vehicleApi'
+import { getErrorMessage } from '../utils/apiError'
 
 const EMPTY_FILTERS = {
   make: '',
@@ -27,7 +28,7 @@ export function useVehicles() {
       const data = await getAllVehicles()
       setVehicles(data)
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load vehicles.')
+      setError(getErrorMessage(err, 'Failed to load vehicles.'))
     } finally {
       setLoading(false)
     }
@@ -45,7 +46,7 @@ export function useVehicles() {
       const data = activeFilters ? await searchVehicles(searchFilters) : await getAllVehicles()
       setVehicles(data)
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to search vehicles.')
+      setError(getErrorMessage(err, 'Failed to search vehicles.'))
     } finally {
       setLoading(false)
     }
@@ -71,7 +72,7 @@ export function useVehicles() {
       setSuccessMessage(`Successfully purchased ${updatedVehicle.make} ${updatedVehicle.model}!`)
       return { success: true, vehicle: updatedVehicle }
     } catch (err) {
-      const message = err.response?.data?.message || 'Purchase failed. Please try again.'
+      const message = getErrorMessage(err, 'Purchase failed. Please try again.')
       setError(message)
       return { success: false, message }
     } finally {

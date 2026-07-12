@@ -4,6 +4,7 @@
 @import './forms.css';
 @import './modal.css';
 @import './vehicles.css';
+@import './polish.css';
 @import './responsive.css';
 
 *,
@@ -158,6 +159,12 @@ textarea {
   padding: var(--spacing-xl);
 }
 
+.not-found__text {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Legacy 404 styles kept for compatibility — overridden in polish.css */
 .not-found__code {
   font-size: 6rem;
   font-weight: 800;
@@ -170,11 +177,6 @@ textarea {
   font-size: var(--font-size-2xl);
   color: var(--color-secondary);
   margin-bottom: var(--spacing-sm);
-}
-
-.not-found__text {
-  color: var(--color-text-muted);
-  margin-bottom: var(--spacing-xl);
 }
 
 /* Button */

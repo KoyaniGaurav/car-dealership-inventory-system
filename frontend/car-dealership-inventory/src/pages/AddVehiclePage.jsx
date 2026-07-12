@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createVehicle } from '../api/vehicleApi'
 import Alert from '../components/common/Alert'
+import PageHeader from '../components/common/PageHeader'
 import VehicleForm from '../components/vehicles/VehicleForm'
+import { getErrorMessage } from '../utils/apiError'
 
 function AddVehiclePage() {
   const navigate = useNavigate()
@@ -19,7 +21,7 @@ function AddVehiclePage() {
         state: { message: `${vehicleData.make} ${vehicleData.model} added successfully.` },
       })
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add vehicle.')
+      setError(getErrorMessage(err, 'Failed to add vehicle.'))
     } finally {
       setLoading(false)
     }
@@ -31,12 +33,7 @@ function AddVehiclePage() {
         ← Back to Admin
       </button>
 
-      <div className="page-header">
-        <div>
-          <h1 className="page-header__title">Add Vehicle</h1>
-          <p className="page-header__subtitle">Add a new vehicle to the inventory</p>
-        </div>
-      </div>
+      <PageHeader title="Add Vehicle" subtitle="Add a new vehicle to the inventory" />
 
       {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
 

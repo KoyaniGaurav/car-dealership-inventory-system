@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useState } from 'react'
 import { login as loginApi, register as registerApi, probeAdminRole } from '../api/authApi'
 import { clearAuth, getStoredAuth, saveAuth } from '../services/authService'
+import { getErrorMessage } from '../utils/apiError'
 import { ROLES } from '../utils/constants'
 
 const AuthContext = createContext(null)
@@ -46,7 +47,7 @@ export function AuthProvider({ children }) {
       setToken(null)
       setEmail(null)
       setRole(null)
-      const message = err.response?.data?.message || 'Login failed. Please try again.'
+      const message = getErrorMessage(err, 'Login failed. Please try again.')
       setError(message)
       return { success: false, message }
     } finally {
@@ -66,7 +67,7 @@ export function AuthProvider({ children }) {
       })
       return { success: true }
     } catch (err) {
-      const message = err.response?.data?.message || 'Registration failed. Please try again.'
+      const message = getErrorMessage(err, 'Registration failed. Please try again.')
       setError(message)
       return { success: false, message }
     } finally {

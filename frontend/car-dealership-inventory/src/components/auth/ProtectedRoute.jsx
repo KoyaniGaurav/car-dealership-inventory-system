@@ -1,16 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import Loader from '../common/Loader'
+import PageLoader from '../common/PageLoader'
 
 function ProtectedRoute({ adminOnly = false }) {
   const { isAuthenticated, isAdmin, loading } = useAuth()
 
   if (loading) {
-    return (
-      <div className="page-loader">
-        <Loader label="Checking authentication..." />
-      </div>
-    )
+    return <PageLoader label="Checking authentication..." />
   }
 
   if (!isAuthenticated) {

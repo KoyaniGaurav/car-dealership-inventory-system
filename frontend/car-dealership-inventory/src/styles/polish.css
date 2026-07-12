@@ -1,0 +1,185 @@
+/* Footer */
+.footer {
+  background: var(--color-secondary);
+  color: rgba(255, 255, 255, 0.75);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  margin-top: auto;
+}
+
+.footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.footer__brand {
+  font-weight: 700;
+  color: #fff;
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.footer__text {
+  font-size: var(--font-size-xs);
+}
+
+/* Mobile nav toggle */
+.navbar__toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 6px;
+  cursor: pointer;
+}
+
+.navbar__toggle span {
+  display: block;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: all var(--transition);
+}
+
+.navbar__toggle--open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.navbar__toggle--open span:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar__toggle--open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Page header aside */
+.page-header__aside {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+/* Stat card icons */
+.stat-card__icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* Focus states */
+.btn:focus-visible,
+.form-field__input:focus-visible,
+.form-field__select:focus-visible,
+.navbar__link:focus-visible,
+.sidebar__link:focus-visible,
+.search-bar__input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 404 page */
+.not-found {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 100%);
+}
+
+.not-found__content {
+  text-align: center;
+  max-width: 480px;
+}
+
+.not-found__illustration {
+  position: relative;
+  margin-bottom: var(--spacing-xl);
+}
+
+.not-found__car {
+  font-size: 4rem;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+}
+
+.not-found__code {
+  position: absolute;
+  top: -10px;
+  right: 20%;
+  font-size: 5rem;
+  font-weight: 900;
+  color: var(--color-primary-light);
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.not-found__title {
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+  color: var(--color-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.not-found__text {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.6;
+}
+
+.not-found__actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Smooth card entrance */
+.vehicle-card {
+  animation: fadeInUp 0.3s ease both;
+}
+
+.vehicle-grid .vehicle-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.vehicle-grid .vehicle-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.vehicle-grid .vehicle-card:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
